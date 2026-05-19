@@ -1,0 +1,332 @@
+{
+  "name": "AI Support Automation (Telegram)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-support",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1232,
+        -368
+      ],
+      "id": "20e0930d-048b-46d4-820c-ab87f5feb670",
+      "name": "Webhook",
+      "webhookId": "a0b78c3f-bcf1-483d-ad78-d9bcb4290383"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f53b5f51-4b7d-4b01-af1b-47f5e742444c",
+              "name": "={{$json.user}}",
+              "value": "={{$json.message}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1056,
+        -336
+      ],
+      "id": "82a37a6c-6725-4536-80fd-c6f7cfc7730a",
+      "name": "prepare message"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"model\": \"gpt-4\",\n  \"messages\": [\n    {\"role\":\"system\",\"content\":\"You are an AI assistant that classifies messages into: support, sales, complaint.\"},\n    {\"role\":\"user\",\"content\":\"{{$json.user_message}}\"}\n  ],\n  \"temperature\":0\n}\n",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -832,
+        -352
+      ],
+      "id": "4fdae86e-065c-4d3a-9c25-c5be11396821",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "MGBAISccSqU9Ywsf",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "110a3b0e-0765-4c57-829f-e82e09e7a713",
+              "leftValue": "={{$json.confidence}}",
+              "rightValue": "=0.7",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            },
+            {
+              "id": "89ae2645-abb0-4295-9628-c88324a558ee",
+              "leftValue": "={{$json.confidence}}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -624,
+        -352
+      ],
+      "id": "3b46fa9c-879e-4e83-8872-57f65a63faf0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "{{$json.chat_id}}",
+        "text": "\"Thank you! Your request is being processed. We will contact you shortly.\" }",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -400
+      ],
+      "id": "f81d863e-8dda-4016-a339-d11801c82d9f",
+      "name": "Send a text message",
+      "webhookId": "f3a2a250-f2d0-4289-bbd3-db9446424a66",
+      "credentials": {
+        "telegramApi": {
+          "id": "D5CDhdGNdjW5FFSZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "human_handover_messages",
+          "mode": "list",
+          "cachedResultName": "human_handover_messages"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_name": "=jawad",
+            "message": "=hello",
+            "confidence": "=.98",
+            "intent": "=greeting",
+            "id": "=550e8400-e29b-41d4-a716-446655440000",
+            "source": "postman",
+            "timestamp": "2026-01-24T12:22:31"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user_name",
+              "displayName": "user_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -352,
+        -208
+      ],
+      "id": "31b21c62-1fb6-4800-bb80-ef6e850bfb0c",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "UlakCKfrSWV5ac0S",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "prepare message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "cf35de2c-37e5-441e-a2f3-85ffb912a053",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5d9679739d07cfb5e84b1322955ca01d979a4d3a551ceb3d6e8b463cf167c86e"
+  },
+  "id": "shhCa8gggk1Kms2SLoh5Y",
+  "tags": []
+}
