@@ -1,0 +1,300 @@
+{
+  "name": "Social Media Trends Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -736,
+        -272
+      ],
+      "id": "82e18630-1ada-450d-b24c-93b478aa172e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=10&key=AIzaSyC3qWxPNOzuqGWFSP8W6l-lrmBVP1o635Q",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -480,
+        -240
+      ],
+      "id": "76a6f5c4-87b0-4f75-9bb1-81b048e4ef1b",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3497ef76-fd43-42e5-aa6f-c18422c1c1d2",
+              "name": "={{$json[\"items\"][0][\"snippet\"][\"title\"]}}",
+              "value": "={{$json[\"items\"][0][\"snippet\"][\"channelTitle\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -256
+      ],
+      "id": "b12ebc41-0db4-4156-ae8f-ecfd3ced7bd7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://www.instagram.com/explore/tags/reels/?__a=1",
+        "options": {
+          "lowercaseHeaders": false,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -544,
+        -80
+      ],
+      "id": "9de24417-2c00-478b-954c-6cca36e00621",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7022b5d7-b94d-41c3-9cc8-df6b3d4bfccb",
+              "name": "={{$json[\"title\"]}}",
+              "value": "={{$json[\"link\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -64
+      ],
+      "id": "8fc20447-adea-4f71-b18f-3c0885584490",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=linkedin+trending+posts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -512,
+        -448
+      ],
+      "id": "4a011dc7-858b-4900-9ce7-bff6c6f67bb1",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc9a5e5a-cf8e-4260-bf6b-ec68440a9d80",
+              "name": "={{$json[\"link\"]}}",
+              "value": "={{$json[\"link\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        -448
+      ],
+      "id": "e006a026-a46e-46e2-9883-e2574972717a",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        176,
+        -240
+      ],
+      "id": "1830fb32-72c5-4bd8-a8e8-9d1fbc40c445",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fromEmail": "jawadsatti320@gmail.com",
+        "toEmail": "jawadsatti9028@gmail.com",
+        "subject": "🔥 Daily Social Media Trends",
+        "emailFormat": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        352,
+        -224
+      ],
+      "id": "9214ec85-033d-4dbf-b146-d660f849b6ed",
+      "name": "Send email",
+      "webhookId": "a94ba99a-ba54-48fa-a881-84203d021644",
+      "credentials": {
+        "smtp": {
+          "id": "Et1wk1dfwFetAV8h",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a3a76ca9-24f3-4300-b9b0-859e322be968",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5d9679739d07cfb5e84b1322955ca01d979a4d3a551ceb3d6e8b463cf167c86e"
+  },
+  "id": "sOMosPq3KMzkgX49P0tly",
+  "tags": []
+}
