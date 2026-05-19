@@ -1,0 +1,351 @@
+{
+  "name": "AI Research Paper Intellegence",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1408,
+        -496
+      ],
+      "id": "b2d69974-a9a8-4857-9a4a-57a93a8e2819",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.semanticscholar.org/graph/v1/paper/search",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"query\": \"diabetic retinopathy\",\n  \"limit\": 1,\n  \"fields\": \"title,year,paperId,url\"\n}\n",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"User-Agent\": \"n8n-research-bot/1.0\",\n  \"Accept\": \"application/json\",\n  \"Accept-Language\": \"en-US,en;q=0.9\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1216,
+        -272
+      ],
+      "id": "4a3af264-581a-4f90-9594-df23d288503a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"title\": \"={{$json.data[0].title}}\",\n  \"year\": \"={{$json.data[0].year}}\",\n  \"paper_url\": \"={{$json.data[0].url}}\",\n  \"paperId\": \"={{$json.data[0].paperId}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1040,
+        -496
+      ],
+      "id": "20f13da5-cbf2-4e72-8b95-851dbe5af12a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "=https://example.com/file.pdf",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -864,
+        -192
+      ],
+      "id": "eec7604e-7ad5-42a6-a0c5-a3ec1900dbfe",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/file/upload",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"x-api-key\": \"jawadsatti320@gmail.com_d3XZP9NLOES9H7nBzYlXMU5x6pyCPW1apBeRsZUqQt6jSOhpQXhYcNByXwRI7E7p\"\n}\n",
+        "options": {
+          "lowercaseHeaders": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -576,
+        -496
+      ],
+      "id": "509777d6-9464-40ac-bd0c-371eca3bf9b6",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3-8b-8192\",\n  \"temperature\": 0.2,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You extract structured information from research papers and respond ONLY in valid JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"From the following research paper text, extract dataset, model, and accuracy/AUC/F1. Return ONLY JSON:\\n{\\n\\\"dataset\\\":\\\"\\\",\\n\\\"model\\\":\\\"\\\",\\n\\\"metric\\\":\\\"\\\"\\n}\\nIf missing write \\\"Not mentioned\\\".\\n\\nPaper text:\\n{{$json.text}}\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -176,
+        -496
+      ],
+      "id": "415be864-e72a-42e5-a6d6-5aa709f99007",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3a734134-1f64-4111-a4f3-c4bb04a2c555",
+              "name": "dataset",
+              "value": "={{$json.choices[0].message.content.dataset || \"Not mentioned\"}}",
+              "type": "string"
+            },
+            {
+              "id": "fcecb0c5-a055-43b2-bcc8-582e19c26f34",
+              "name": "model",
+              "value": "={{$json.choices[0].message.content.model || \"Not mentioned\"}}",
+              "type": "string"
+            },
+            {
+              "id": "82de583b-8f0d-484a-b28d-cb6824102ab0",
+              "name": "metric",
+              "value": "={{$json.choices[0].message.content.metric || \"Not mentioned\"}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -272
+      ],
+      "id": "c90f92ef-4576-48f3-b417-20f4b610204f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudmersive.com/pdf/convert/to/text",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Apikey\": \"7e307992-fcc2-48d5-9170-471b620dc091\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputFile\": {\n    \"type\": \"binary\",\n    \"property\": \"data\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -400,
+        -160
+      ],
+      "id": "af591203-1bcb-4071-8c61-dd016685a0cc",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ed597bec-95c8-4550-b872-8ad95100abe3",
+              "leftValue": "={{$json.dataset}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        -384
+      ],
+      "id": "7ce50db9-b2ef-43ad-bb15-bfe21afa41fa",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        -272
+      ],
+      "id": "a9d85060-1f27-470c-89cc-4f9cd6f39406",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "yDWb1sp8Awhbp8np",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "6291ea9b-c84a-4223-9e82-3ca9c14f6e41",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5d9679739d07cfb5e84b1322955ca01d979a4d3a551ceb3d6e8b463cf167c86e"
+  },
+  "id": "iKlh0p0LHlqj-BXlyyPUb",
+  "tags": []
+}
